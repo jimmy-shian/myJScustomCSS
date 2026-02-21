@@ -39,6 +39,7 @@
     margin-bottom: 25px !important;
 }
 
+/* 遮罩層樣式，整個畫面覆蓋，半透明黑色背景 */
 #auto-next-modal {
     position: fixed;
     inset: 0;
@@ -51,32 +52,38 @@
     transition: opacity 0.3s ease;
 }
 
+/* 顯示遮罩層 */
 #auto-next-modal.show {
     opacity: 1;
 }
 
+/* 隱藏遮罩層 */
 #auto-next-modal.hide {
     opacity: 0;
 }
 
+/* 彈出卡片本體樣式，深色背景、圓角、陰影 */
 .auto-next-card {
-    background: white;
+    background: #222222;
     padding: 30px 45px;
     border-radius: 14px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     transform: translateY(20px);
     transition: transform 0.3s ease;
 }
 
+/* 顯示狀態下，卡片向上移動到正常位置 */
 #auto-next-modal.show .auto-next-card {
     transform: translateY(0);
 }
 
+/* 標題樣式，底部外距 */
 .auto-next-card h3 {
     margin: 0 0 10px;
 }
 
+/* 取消按鈕樣式，紅色底，白字，圓角 */
 .auto-next-card button {
     margin-top: 18px;
     padding: 8px 18px;
@@ -88,6 +95,7 @@
     font-size: 14px;
 }
 
+/* 按鈕懸停效果，降低透明度 */
 .auto-next-card button:hover {
     opacity: 0.9;
 }

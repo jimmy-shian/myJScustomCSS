@@ -89,7 +89,7 @@ document.addEventListener('keydown', function (e) {
         } else {
             scrollInterval = setInterval(() => {
 
-                window.scrollBy(0, 1);
+                window.scrollBy(0, 0.3);
 
                 if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
                     clearInterval(scrollInterval);
