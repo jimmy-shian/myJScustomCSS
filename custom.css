@@ -28,13 +28,13 @@
 }
 
 /* ===== 內文字體放大 3 號 ===== */
-.chapter-detail .content {
+body.use-custom-font .chapter-detail .content {
     font-size: 42px !important;
     line-height: 1.5 !important;
 }
 
 /* 章節標題也放大一點 */
-.chapter-detail .name {
+body.use-custom-font .chapter-detail .name {
     font-size: 32px !important;
     margin-bottom: 25px !important;
 }

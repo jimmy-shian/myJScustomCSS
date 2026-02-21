@@ -39,6 +39,10 @@ javascript:(function(){
   }
 })();
 ```
+1.1. 如果失敗，改用 一行版本
+```javascript
+javascript:(function(){var css=document.createElement("link");css.id="myCustomStyle";css.rel="stylesheet";css.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.css";document.head.appendChild(css);var script=document.createElement("script");script.id="myCustomScript";script.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.js";document.body.appendChild(script);})();
+```
 
 2. 先 開啟你想套用的網站。
 3. 然後 點擊剛剛那個自訂的書籤，即可立即套用此資料庫的 CSS 與 JS。

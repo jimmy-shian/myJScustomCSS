@@ -104,6 +104,54 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
+// ===== 字體大小切換功能 =====
+function initFontSizeToggle() {
+    const STORAGE_KEY = 'use_custom_font_size';
+    let useCustomFont = localStorage.getItem(STORAGE_KEY) !== 'false'; // 預設開啟
+
+    function updateUI() {
+        if (useCustomFont) {
+            document.body.classList.add('use-custom-font');
+        } else {
+            document.body.classList.remove('use-custom-font');
+        }
+
+        const toggleBtn = document.getElementById('toggle-custom-font');
+        if (toggleBtn) {
+            toggleBtn.textContent = useCustomFont ? '[取消自訂]' : '[恢復自訂]';
+        }
+    }
+
+    // 初始化狀態
+    updateUI();
+
+    // 尋找網站的選單位置並插入按鈕
+    const navs = document.querySelectorAll('.customs-function .nav');
+    if (navs.length >= 3) {
+        const fontSizeNav = navs[2]; // 根據用戶提供的 HTML，第三個 .nav 是字體大小
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = 'javascript:void(0);';
+        a.id = 'toggle-custom-font';
+        a.onclick = () => {
+            useCustomFont = !useCustomFont;
+            localStorage.setItem(STORAGE_KEY, useCustomFont);
+            updateUI();
+            showToast(useCustomFont ? "已恢復自訂字體大小" : "已切換為網站原始字體大小");
+        };
+        li.appendChild(a);
+        fontSizeNav.appendChild(li);
+        updateUI(); // 確保按鈕文字正確
+    }
+}
+
+// 在 DOM 加載完成後初始化
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFontSizeToggle);
+} else {
+    initFontSizeToggle();
+}
+
 function showToast(message) {
     const toast = document.createElement("div");
     toast.className = "toast-notification";
