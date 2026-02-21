@@ -1,6 +1,9 @@
 (function () {
     // 避免腳本被重複注入執行，導致變數重複宣告錯誤
-    if (window.__myCustomJsLoaded) return;
+    if (window.__myCustomJsLoaded) {
+        showToast("自定義腳本已載入");
+        return;
+    }
     window.__myCustomJsLoaded = true;
 
     let isScrolling = false;
@@ -82,26 +85,22 @@
         });
     }
 
-    document.addEventListener('keydown', function (e) {
-
+    document.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
-        if (e.code === 'Space') {
+        if (e.key === ' ') {
             e.preventDefault();
 
             if (isScrolling) {
                 clearInterval(scrollInterval);
             } else {
                 scrollInterval = setInterval(() => {
-
                     window.scrollBy(0, 0.3);
-
-                    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
                         clearInterval(scrollInterval);
                         isScrolling = false;
                         showNextModal();
                     }
-
                 }, 10);
             }
 
