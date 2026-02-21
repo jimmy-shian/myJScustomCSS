@@ -103,3 +103,28 @@ document.addEventListener('keydown', function (e) {
         isScrolling = !isScrolling;
     }
 });
+
+function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    toast.innerHTML = `
+        <span class="icon">✓</span>
+        <span class="message">${message}</span>
+    `;
+    document.body.appendChild(toast);
+
+    // Force reflow
+    toast.offsetHeight;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+            toast.remove();
+        }, 400);
+    }, 3000);
+}
+
+// 腳本載入成功提示
+showToast("自定義腳本已啟動");

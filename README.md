@@ -20,22 +20,21 @@
 
 1. 複製下面程式碼 在瀏覽器 [新增書籤，貼上 程式碼]
 ```javascript
-
 javascript:(function(){
-  const version = Date.now(); // 或自己定義 v1, v2...
-  
+  // 如果還沒加載 CSS
   if(!document.getElementById("myCustomStyle")){
-    var css=document.createElement("link");
-    css.id="myCustomStyle";
-    css.rel="stylesheet";
-    css.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS/custom.css?v=" + version;
+    var css = document.createElement("link");
+    css.id = "myCustomStyle";
+    css.rel = "stylesheet";
+    css.href = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.css";
     document.head.appendChild(css);
   }
 
+  // 如果還沒加載 JS
   if(!document.getElementById("myCustomScript")){
-    var script=document.createElement("script");
-    script.id="myCustomScript";
-    script.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS/custom.js?v=" + version;
+    var script = document.createElement("script");
+    script.id = "myCustomScript";
+    script.src = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.js";
     document.body.appendChild(script);
   }
 })();
