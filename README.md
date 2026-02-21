@@ -21,27 +21,35 @@
 1. 複製下面程式碼 在瀏覽器 [新增書籤，貼上 程式碼]
 ```javascript
 javascript:(function(){
-  // 如果還沒加載 CSS
-  if(!document.getElementById("myCustomStyle")){
-    var css = document.createElement("link");
-    css.id = "myCustomStyle";
-    css.rel = "stylesheet";
-    css.href = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.css";
-    document.head.appendChild(css);
-  }
+  // 先取得最新的 commit hash，避免 jsdelivr 快取
+  fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main")
+    .then(res => res.json())
+    .then(data => {
+      var hash = data.sha || "main"; // 萬一 API 失敗則退回使用 main
 
-  // 如果還沒加載 JS
-  if(!document.getElementById("myCustomScript")){
-    var script = document.createElement("script");
-    script.id = "myCustomScript";
-    script.src = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.js";
-    document.body.appendChild(script);
-  }
+      // 如果還沒加載 CSS
+      if(!document.getElementById("myCustomStyle")){
+        var css = document.createElement("link");
+        css.id = "myCustomStyle";
+        css.rel = "stylesheet";
+        css.href = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.css";
+        document.head.appendChild(css);
+      }
+
+      // 如果還沒加載 JS
+      if(!document.getElementById("myCustomScript")){
+        var script = document.createElement("script");
+        script.id = "myCustomScript";
+        script.src = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.js";
+        document.body.appendChild(script);
+      }
+    })
+    .catch(err => console.error("無法取得最新 commit hash:", err));
 })();
 ```
 1.1. 如果失敗，改用 一行版本
 ```javascript
-javascript:(function(){var css=document.createElement("link");css.id="myCustomStyle";css.rel="stylesheet";css.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.css";document.head.appendChild(css);var script=document.createElement("script");script.id="myCustomScript";script.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.js";document.body.appendChild(script);})();
+javascript:(function(){fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main").then(r=>r.json()).then(d=>{var h=d.sha||"main";if(!document.getElementById("myCustomStyle")){var c=document.createElement("link");c.id="myCustomStyle";c.rel="stylesheet";c.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.css";document.head.appendChild(c);}if(!document.getElementById("myCustomScript")){var s=document.createElement("script");s.id="myCustomScript";s.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.js";document.body.appendChild(s);}}).catch(e=>console.error(e));})();
 ```
 
 2. 先 開啟你想套用的網站。
@@ -54,16 +62,24 @@ javascript:(function(){var css=document.createElement("link");css.id="myCustomSt
 如果你想在開發者工具或臨時頁面直接載入：
 
 ```javascript
-// 載入 CSS
-var css=document.createElement("link");
-css.rel="stylesheet";
-css.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS/custom.css";
-document.head.appendChild(css);
+// 先取得最新的 commit hash，避免 jsdelivr 快取
+fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main")
+  .then(res => res.json())
+  .then(data => {
+    var hash = data.sha || "main"; // 萬一 API 失敗則退回使用 main
 
-// 載入 JS
-var script=document.createElement("script");
-script.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS/custom.js";
-document.body.appendChild(script);
+    // 載入 CSS
+    var css=document.createElement("link");
+    css.rel="stylesheet";
+    css.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.css";
+    document.head.appendChild(css);
+
+    // 載入 JS
+    var script=document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.js";
+    document.body.appendChild(script);
+  })
+  .catch(err => console.error("無法取得最新 commit hash:", err));
 ```
 
 ---
