@@ -101,7 +101,7 @@
                         isScrolling = false;
                         showNextModal();
                     }
-                }, 2);
+                }, 1);
             }
 
             isScrolling = !isScrolling;
