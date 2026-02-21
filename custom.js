@@ -193,7 +193,7 @@
         initFontSizeToggle();
     }
 
-    function showToast(message) {
+    window.showToast = window.showToast || function (message) {
         // 確保 Toast 樣式存在，避免 custom.css 載入較慢導致無樣式
         if (!document.getElementById('custom-toast-style')) {
             const style = document.createElement('style');
