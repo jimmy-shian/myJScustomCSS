@@ -95,13 +95,13 @@
                 clearInterval(scrollInterval);
             } else {
                 scrollInterval = setInterval(() => {
-                    window.scrollBy(0, 0.3);
+                    window.scrollBy(0, 1);
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
                         clearInterval(scrollInterval);
                         isScrolling = false;
                         showNextModal();
                     }
-                }, 10);
+                }, 2);
             }
 
             isScrolling = !isScrolling;
