@@ -1,0 +1,93 @@
+/* ===== 隱藏左側廣告欄 ===== */
+.chapter-sidebar {
+    display: none !important;
+}
+
+/* ===== 讓主要區塊置中 ===== */
+#sticky-parent {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* ===== 文章區域最佳閱讀寬度 ===== */
+.chapter-detail {
+    width: 100% !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
+}
+
+/* ===== 內文排版優化 ===== */
+.content {
+    font-size: 20px !important;
+    line-height: 1.9 !important;
+}
+
+/* 移除多餘廣告 */
+.ads {
+    display: none !important;
+}
+
+/* ===== 內文字體放大 3 號 ===== */
+.chapter-detail .content {
+    font-size: 24px !important;
+    line-height: 2 !important;
+}
+
+/* 章節標題也放大一點 */
+.chapter-detail .name {
+    font-size: 28px !important;
+    margin-bottom: 25px !important;
+}
+
+#auto-next-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#auto-next-modal.show {
+    opacity: 1;
+}
+
+#auto-next-modal.hide {
+    opacity: 0;
+}
+
+.auto-next-card {
+    background: white;
+    padding: 30px 45px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+#auto-next-modal.show .auto-next-card {
+    transform: translateY(0);
+}
+
+.auto-next-card h3 {
+    margin: 0 0 10px;
+}
+
+.auto-next-card button {
+    margin-top: 18px;
+    padding: 8px 18px;
+    border: none;
+    background: #e74c3c;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.auto-next-card button:hover {
+    opacity: 0.9;
+}
