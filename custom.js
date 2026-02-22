@@ -187,9 +187,11 @@
 
             if (isScrolling) {
                 stopScrolling();
+                showToast("暫停");
             } else {
                 isScrolling = true;
                 startScrolling();
+                showToast(`目前速度：${scrollDelay}ms`);
             }
         }
 
