@@ -36,20 +36,17 @@ javascript:(function(){
         document.head.appendChild(css);
       }
 
-      // 如果還沒加載 JS
-      if(!document.getElementById("myCustomScript")){
-        var script = document.createElement("script");
-        script.id = "myCustomScript";
-        script.src = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.js";
-        document.body.appendChild(script);
-      }
+      // 載入 JS (內部會阻擋重複執行)
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@" + hash + "/custom.js";
+      document.body.appendChild(script);
     })
     .catch(err => console.error("無法取得最新 commit hash:", err));
 })();
 ```
 1.1. 如果失敗，改用 一行版本
 ```javascript
-javascript:(function(){fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main").then(r=>r.json()).then(d=>{var h=d.sha||"main";if(!document.getElementById("myCustomStyle")){var c=document.createElement("link");c.id="myCustomStyle";c.rel="stylesheet";c.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.css";document.head.appendChild(c);}if(!document.getElementById("myCustomScript")){var s=document.createElement("script");s.id="myCustomScript";s.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.js";document.body.appendChild(s);}}).catch(e=>console.error(e));})();
+javascript:(function(){fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main").then(r=>r.json()).then(d=>{var h=d.sha||"main";if(!document.getElementById("myCustomStyle")){var c=document.createElement("link");c.id="myCustomStyle";c.rel="stylesheet";c.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.css";document.head.appendChild(c);}var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.js";document.body.appendChild(s);}).catch(e=>console.error(e));})();
 ```
 
 2. 先 開啟你想套用的網站。

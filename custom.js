@@ -1,6 +1,15 @@
 (function () {
 
     /* =====================================================
+       防止重複注入
+    ===================================================== */
+    if (window.__myCustomJsLoaded) {
+        setTimeout(() => window.showToast("自定義腳本已載入"), 1000);
+        return;
+    }
+    window.__myCustomJsLoaded = true;
+
+    /* =====================================================
        Toast 系統（先定義，避免重複注入時出錯）
     ===================================================== */
     window.showToast = window.showToast || function (message) {
@@ -66,16 +75,6 @@
             document.addEventListener("DOMContentLoaded", createToast);
         }
     };
-
-
-    /* =====================================================
-       防止重複注入
-    ===================================================== */
-    if (window.__myCustomJsLoaded) {
-        setTimeout(() => window.showToast("自定義腳本已載入"), 1000);
-        return;
-    }
-    window.__myCustomJsLoaded = true;
 
 
     /* =====================================================
