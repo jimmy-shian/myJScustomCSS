@@ -72,7 +72,7 @@
        防止重複注入
     ===================================================== */
     if (window.__myCustomJsLoaded) {
-        window.showToast("自定義腳本已載入");
+        setTimeout(() => window.showToast("自定義腳本已載入"), 1000);
         return;
     }
     window.__myCustomJsLoaded = true;
@@ -89,7 +89,7 @@
         scrollInterval = setInterval(() => {
             window.scrollBy(0, 1);
 
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 2) {
                 stopScrolling();
                 showNextModal();
             }
