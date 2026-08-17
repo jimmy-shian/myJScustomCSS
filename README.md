@@ -48,6 +48,11 @@ javascript:(function(){
 ```javascript
 javascript:(function(){fetch("https://api.github.com/repos/jimmy-shian/myJScustomCSS/commits/main").then(r=>r.json()).then(d=>{var h=d.sha||"main";if(!document.getElementById("myCustomStyle")){var c=document.createElement("link");c.id="myCustomStyle";c.rel="stylesheet";c.href="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.css";document.head.appendChild(c);}var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@"+h+"/custom.js";document.body.appendChild(s);}).catch(e=>console.error(e));})();
 ```
+---
+1.2. 如果抓取最新失敗，改用 一行版本
+```javascript
+javascript:(()=>{const c='https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.css',j='https://cdn.jsdelivr.net/gh/jimmy-shian/myJScustomCSS@main/custom.js';if(!document.querySelector('link[href="'+c+'"]')){const l=document.createElement('link');l.rel='stylesheet';l.href=c;document.head.appendChild(l)}if(!document.querySelector('script[src="'+j+'"]')){const s=document.createElement('script');s.src=j;s.onload=()=>console.log('main JS + CSS 載入完成');s.onerror=e=>console.error('JS 載入失敗',e);document.head.appendChild(s)}})();
+```
 
 2. 先 開啟你想套用的網站。
 3. 然後 點擊剛剛那個自訂的書籤，即可立即套用此資料庫的 CSS 與 JS。
