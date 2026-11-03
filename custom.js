@@ -229,7 +229,7 @@
 
             const toggleBtn = document.getElementById('toggle-custom-font');
             if (toggleBtn) {
-                toggleBtn.textContent = useCustomFont ? '[取消自訂]' : '[恢復自訂]';
+                toggleBtn.textContent = useCustomFont ? '取消自訂字體' : '恢復自訂字體';
             }
         }
 
@@ -238,35 +238,55 @@
         function tryInjectButton() {
             if (isButtonInjected) return true;
 
-            const navs = Array.from(document.querySelectorAll('.customs-function .nav'));
+            // 1. 新版介面：尋找 .reader-setting-tools 或 .reader-setting-group[aria-label="字體大小"]
+            const toolsGroup = document.querySelector('.reader-setting-group.reader-setting-tools');
+            const fontGroup = document.querySelector('.reader-setting-group[aria-label="字體大小"]');
+            const targetContainer = toolsGroup || fontGroup;
 
+            if (targetContainer && !document.getElementById('toggle-custom-font')) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = 'toggle-custom-font';
+                btn.textContent = useCustomFont ? '取消自訂字體' : '恢復自訂字體';
+
+                btn.onclick = () => {
+                    useCustomFont = !useCustomFont;
+                    localStorage.setItem(STORAGE_KEY, useCustomFont);
+                    updateUI();
+                    showToast(useCustomFont ? "已恢復自訂字體大小" : "已切換為網站原始字體大小");
+                };
+
+                targetContainer.appendChild(btn);
+                updateUI();
+                isButtonInjected = true;
+                return true;
+            }
+
+            // 2. 舊版相容
+            const navs = Array.from(document.querySelectorAll('.customs-function .nav'));
             for (const nav of navs) {
                 const firstLi = nav.querySelector('li:first-child');
                 if (firstLi && firstLi.textContent.includes('選擇字體大小')) {
-
                     if (!document.getElementById('toggle-custom-font')) {
                         const li = document.createElement('li');
                         const a = document.createElement('a');
-
                         a.href = 'javascript:void(0);';
                         a.id = 'toggle-custom-font';
-
                         a.onclick = () => {
                             useCustomFont = !useCustomFont;
                             localStorage.setItem(STORAGE_KEY, useCustomFont);
                             updateUI();
                             showToast(useCustomFont ? "已恢復自訂字體大小" : "已切換為網站原始字體大小");
                         };
-
                         li.appendChild(a);
                         nav.appendChild(li);
-
                         updateUI();
                         isButtonInjected = true;
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
@@ -274,7 +294,6 @@
             const observer = new MutationObserver((_, obs) => {
                 if (tryInjectButton()) obs.disconnect();
             });
-
             observer.observe(document.body, { childList: true, subtree: true });
             setTimeout(() => observer.disconnect(), 10000);
         }
@@ -285,6 +304,108 @@
     } else {
         initFontSizeToggle();
     }
+
+
+    /* =====================================================
+       閱讀設定下拉動畫 (依據 下拉式選單動畫.txt)
+    ===================================================== */
+    function initReaderSettingsDropdown() {
+        const settings = document.querySelector('.reader-settings');
+        if (!settings || settings.dataset.dropdownInit) return;
+        settings.dataset.dropdownInit = 'true';
+
+        const summary = settings.querySelector('summary');
+        const content = settings.querySelector('.customs-function');
+        if (!summary || !content) return;
+
+        let isAnimating = false;
+
+        // 同步初次載入時的 open 狀態
+        if (settings.hasAttribute('open')) {
+            settings.classList.add('is-open');
+        }
+
+        function expand() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            settings.setAttribute('open', '');
+            settings.classList.add('is-open');
+
+            const endHeight = content.scrollHeight;
+
+            const anim = content.animate([
+                { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' },
+                { height: endHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' }
+            ], {
+                duration: 280,
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+            });
+
+            anim.onfinish = () => {
+                content.style.height = '';
+                isAnimating = false;
+            };
+        }
+
+        function collapse() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            settings.classList.remove('is-open');
+
+            const startHeight = content.scrollHeight;
+
+            const anim = content.animate([
+                { height: startHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' },
+                { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' }
+            ], {
+                duration: 240,
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+            });
+
+            anim.onfinish = () => {
+                settings.removeAttribute('open');
+                content.style.height = '';
+                isAnimating = false;
+            };
+        }
+
+        // 點擊 summary 開合選單
+        summary.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isAnimating) return;
+
+            if (settings.hasAttribute('open')) {
+                collapse();
+            } else {
+                expand();
+            }
+        });
+
+        // 點擊外部區域自動收合
+        document.addEventListener('click', (e) => {
+            if (settings.hasAttribute('open') && !settings.contains(e.target) && !isAnimating) {
+                collapse();
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initReaderSettingsDropdown);
+    } else {
+        initReaderSettingsDropdown();
+    }
+
+    // 防止動態載入遺漏，且保證單次初始化
+    const settingsObserver = new MutationObserver(() => {
+        const s = document.querySelector('.reader-settings');
+        if (s && !s.dataset.dropdownInit) {
+            initReaderSettingsDropdown();
+        }
+    });
+    settingsObserver.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => settingsObserver.disconnect(), 10000);
 
 
     /* =====================================================
