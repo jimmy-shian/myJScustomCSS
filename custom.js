@@ -308,85 +308,98 @@
 
     /* =====================================================
        閱讀設定下拉動畫 (依據 下拉式選單動畫.txt)
+       注意：
+       1. isAnimating 鎖必須保證一定會解開（onfinish / oncancel /
+          保底 timer 三重防線），否則收合會永久失效。
+       2. 綁定旗標用 JS property（__myDropdownBound）而非 dataset，
+          因為網站/擴充套件重寫 DOM 時 clone 會保留 dataset
+          但 listener 不會，導致初始化被跳過、點擊無反應。
     ===================================================== */
     function initReaderSettingsDropdown() {
         const settings = document.querySelector('.reader-settings');
-        if (!settings || settings.dataset.dropdownInit) return;
-        settings.dataset.dropdownInit = 'true';
+        // 用 JS property 綁定：同一節點不重綁；clone 出來的新節點（property 會丟失）會重新綁定
+        if (!settings || settings.__myDropdownBound) return;
 
         const summary = settings.querySelector('summary');
         const content = settings.querySelector('.customs-function');
         if (!summary || !content) return;
 
-        let isAnimating = false;
+        settings.__myDropdownBound = true;
+
+        // 動畫進行中的鎖，值為保底結束計時器 id
+        let lockTimer = null;
+        const DURATION_OPEN = 280;
+        const DURATION_CLOSE = 240;
 
         // 同步初次載入時的 open 狀態
         if (settings.hasAttribute('open')) {
             settings.classList.add('is-open');
         }
 
-        function expand() {
-            if (isAnimating) return;
-            isAnimating = true;
+        function finish(closing) {
+            clearTimeout(lockTimer);
+            lockTimer = null;
+            content.style.height = '';
+            settings.classList.toggle('is-open', !closing);
+            if (closing) {
+                settings.removeAttribute('open');
+            } else {
+                settings.setAttribute('open', '');
+            }
+        }
 
-            settings.setAttribute('open', '');
-            settings.classList.add('is-open');
+        function runAnim(opening) {
+            if (lockTimer) return; // 動畫進行中：忽略點擊
+            const duration = opening ? DURATION_OPEN : DURATION_CLOSE;
+
+            settings.classList.toggle('is-open', opening);
+            if (opening) settings.setAttribute('open', ''); // 先讓內容渲染，scrollHeight 才量得到
 
             const endHeight = content.scrollHeight;
 
-            const anim = content.animate([
-                { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' },
-                { height: endHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' }
-            ], {
-                duration: 280,
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-            });
+            let anim = null;
+            try {
+                const frames = opening
+                    ? [   // 展開：0 → endHeight
+                        { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' },
+                        { height: endHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' }
+                      ]
+                    : [   // 收合：endHeight → 0
+                        { height: endHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' },
+                        { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' }
+                      ];
+                anim = content.animate(frames, {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
+                });
+            } catch (err) {
+                // 不支援 Web Animations API：直接切換狀態
+                finish(!opening);
+                return;
+            }
 
-            anim.onfinish = () => {
-                content.style.height = '';
-                isAnimating = false;
+            // finish 與 cancel 都要解鎖，另外用保底 timer 防止動畫永不結束
+            // （例如動畫時鐘停擺：Chrome 節流、被遮住的視窗、省電模式），否則鎖會永久卡住
+            const done = () => {
+                if (lockTimer) finish(!opening);
             };
-        }
-
-        function collapse() {
-            if (isAnimating) return;
-            isAnimating = true;
-
-            settings.classList.remove('is-open');
-
-            const startHeight = content.scrollHeight;
-
-            const anim = content.animate([
-                { height: startHeight + 'px', opacity: 1, transform: 'scaleY(1)', transformOrigin: 'top' },
-                { height: '0px', opacity: 0, transform: 'scaleY(0.9)', transformOrigin: 'top' }
-            ], {
-                duration: 240,
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)'
-            });
-
-            anim.onfinish = () => {
-                settings.removeAttribute('open');
-                content.style.height = '';
-                isAnimating = false;
-            };
+            anim.addEventListener('finish', done);
+            anim.addEventListener('cancel', done);
+            anim.finished.catch(() => { }); // 避免取消時未處理的 promise rejection
+            lockTimer = setTimeout(done, duration + 120);
         }
 
         // 點擊 summary 開合選單
         summary.addEventListener('click', (e) => {
             e.preventDefault();
-            if (isAnimating) return;
-
-            if (settings.hasAttribute('open')) {
-                collapse();
-            } else {
-                expand();
-            }
+            if (lockTimer) return;
+            runAnim(!settings.hasAttribute('open'));
         });
 
         // 點擊外部區域自動收合
         document.addEventListener('click', (e) => {
-            if (settings.hasAttribute('open') && !settings.contains(e.target) && !isAnimating) {
-                collapse();
+            if (settings.hasAttribute('open') && !settings.contains(e.target) && !lockTimer) {
+                runAnim(false);
             }
         });
     }
@@ -397,15 +410,15 @@
         initReaderSettingsDropdown();
     }
 
-    // 防止動態載入遺漏，且保證單次初始化
+    // 持續觀察 DOM 重寫（網站/Cloudflare/廣告腳本可能 clone <details>）：
+    // clone 會帶走 dataset 卻丟掉 listener 與 __myDropdownBound，需要重新綁定
     const settingsObserver = new MutationObserver(() => {
         const s = document.querySelector('.reader-settings');
-        if (s && !s.dataset.dropdownInit) {
+        if (s && !s.__myDropdownBound) {
             initReaderSettingsDropdown();
         }
     });
     settingsObserver.observe(document.body, { childList: true, subtree: true });
-    setTimeout(() => settingsObserver.disconnect(), 10000);
 
 
     /* =====================================================
